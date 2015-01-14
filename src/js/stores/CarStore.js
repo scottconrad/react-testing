@@ -4,8 +4,8 @@ var assign = require('object-assign');
 
 var _cars = [];
 
-var CHANGE_EVENT = 'Carstore.changed';
-var ADD_EVENT = 'Carstore.add';
+var CHANGE_EVENT = 'CarStore.changed';
+var ADD_EVENT = 'CarStore.add';
 var REMOVE_EVENT = 'Carstore.remove';
 
 var CarStore = assign({}, EventEmitter.prototype, {
@@ -22,9 +22,8 @@ var CarStore = assign({}, EventEmitter.prototype, {
     return _cars;
   },
   removeCar:function(item){
-    console.log('the item is:',item);
     _cars.map(function(array_item,index){
-      console.log('the array item is',array_item);
+
       if(item.props.item.name === array_item.name) _cars.splice(index,1);
       CarStore.emitChange();
     });
@@ -40,18 +39,15 @@ var CarStore = assign({}, EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT,callback);
   },
   dispatcherIndex: AppDispatcher.register(function (payload) {
-
+    console.log("dispatcherIndex:AppDispatcher.register was called with payload",payload);
     var action = payload.action;
-    var text;
-    console.log(payload);
-    console.log("our dispatcherIndex was called");
     switch (action.actionType) {
       case ADD_EVENT:
-          this.addCar(action.car);
-          this.emitChange();
+          console.log("we got into our ADD_EVENT");
+          CarStore.addCar(action.item);
+          CarStore.emitChange();
         break;
       case REMOVE_EVENT:
-        console.log("Our remove event was called");
         break;
 
       // add more cases for other actionTypes, like TODO_UPDATE, etc.

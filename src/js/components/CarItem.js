@@ -12,8 +12,6 @@ var CarItem = React.createClass({
   },
 
   render:function() {
-    console.log(this.props);
-    console.log(this.state);
     return (
       <div style={this.relative_style}>
         <i onClick={this._removeItem} style={this.remove_icon} className="fa fa-remove"></i>

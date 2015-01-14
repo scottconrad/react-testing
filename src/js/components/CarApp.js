@@ -1,6 +1,7 @@
 var React = require('react');
 var CarStore = require('../stores/CarStore');
 var CarItem = require('./CarItem');
+var CarAppActions = require('../actions/CarAppActions');
 //////
 
   function getCars(){
@@ -12,7 +13,6 @@ var CarItem = require('./CarItem');
 var CarApp = React.createClass({
 
   getInitialState:function(){
-    console.log("getInitialState was called",getCars());
     return getCars();
   },
   componentDidMount:function(){
@@ -22,12 +22,18 @@ var CarApp = React.createClass({
     CarStore.removeChangeListener(this._onChange);
   },
   _onChange:function(){
-    console.log(getCars());
+    console.log('CarApp._onChange was called:',getCars());
     this.setState(getCars());
 
   },
   _onButtonClick:function(){
-    CarStore.addCar({'name':'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),'img_src':'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'});
+    //this was bad
+    //CarStore.addCar({'name':'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),'img_src':'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'});
+    CarAppActions.addCar({
+      'key':(Math.floor(Math.random() * 10000000000000)),
+      'name': 'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),
+      'img_src': 'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'
+    });
   },
   render:function(){
 

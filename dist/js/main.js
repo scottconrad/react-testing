@@ -19586,9 +19586,27 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":32}],151:[function(require,module,exports){
+/**
+ * Created by scottconrad on 1/14/15.
+ */
+var AppDispatcher = require('../dispatchers/AppDispatcher');
+
+var CarAppActions = {
+  addCar: function (item) {
+    console.log("CarAppActions.addCar was called");
+    AppDispatcher.handleViewAction({
+      actionType: 'CarStore.add',
+      item: item
+    });
+  }
+}
+
+module.exports = CarAppActions;
+},{"../dispatchers/AppDispatcher":154}],152:[function(require,module,exports){
 var React = require('react');
 var CarStore = require('../stores/CarStore');
 var CarItem = require('./CarItem');
+var CarAppActions = require('../actions/CarAppActions');
 //////
 
   function getCars(){
@@ -19600,7 +19618,6 @@ var CarItem = require('./CarItem');
 var CarApp = React.createClass({displayName: "CarApp",
 
   getInitialState:function(){
-    console.log("getInitialState was called",getCars());
     return getCars();
   },
   componentDidMount:function(){
@@ -19610,12 +19627,18 @@ var CarApp = React.createClass({displayName: "CarApp",
     CarStore.removeChangeListener(this._onChange);
   },
   _onChange:function(){
-    console.log(getCars());
+    console.log('CarApp._onChange was called:',getCars());
     this.setState(getCars());
 
   },
   _onButtonClick:function(){
-    CarStore.addCar({'name':'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),'img_src':'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'});
+    //this was bad
+    //CarStore.addCar({'name':'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),'img_src':'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'});
+    CarAppActions.addCar({
+      'key':(Math.floor(Math.random() * 10000000000000)),
+      'name': 'A Car ' + (Math.floor(Math.random() * 10000000000)).toString(),
+      'img_src': 'http://loremflickr.com/320/240/paris,girl/all?random=' + Math.floor((Math.random() * 100) + 1) + '/HawaiiLife'
+    });
   },
   render:function(){
 
@@ -19643,7 +19666,7 @@ var CarApp = React.createClass({displayName: "CarApp",
 
 module.exports = CarApp;
 
-},{"../stores/CarStore":156,"./CarItem":152,"react":150}],152:[function(require,module,exports){
+},{"../actions/CarAppActions":151,"../stores/CarStore":157,"./CarItem":153,"react":150}],153:[function(require,module,exports){
 /**
  * Created by scottconrad on 1/14/15.
  */
@@ -19658,8 +19681,6 @@ var CarItem = React.createClass({displayName: "CarItem",
   },
 
   render:function() {
-    console.log(this.props);
-    console.log(this.state);
     return (
       React.createElement("div", {style: this.relative_style}, 
         React.createElement("i", {onClick: this._removeItem, style: this.remove_icon, className: "fa fa-remove"}), 
@@ -19671,7 +19692,7 @@ var CarItem = React.createClass({displayName: "CarItem",
 });
 
 module.exports = CarItem; //
-},{"../stores/CarStore":156,"react":150}],153:[function(require,module,exports){
+},{"../stores/CarStore":157,"react":150}],154:[function(require,module,exports){
 /**
  * Created by scottconrad on 1/14/15.
  */
@@ -19686,17 +19707,16 @@ var AppDispatcher = assign({}, Dispatcher.prototype, {
    * @param  {object} action The data coming from the view.
    */
   handleViewAction: function (action) {
-    alert("we had an action" + action);
-
     this.dispatch({
       source: 'VIEW_ACTION',
       action: action
     });
   }
 });
-
+//
+//
 module.exports = AppDispatcher; //
-},{"./Dispatcher":154,"object-assign":4}],154:[function(require,module,exports){
+},{"./Dispatcher":155,"object-assign":4}],155:[function(require,module,exports){
 'use strict';
 var Promise = require('es6-promise').Promise;
 var assign = require('object-assign');
@@ -19747,7 +19767,7 @@ Dispatcher.prototype = assign({}, Dispatcher.prototype, {
 });
 
 module.exports = Dispatcher;
-},{"es6-promise":1,"object-assign":4}],155:[function(require,module,exports){
+},{"es6-promise":1,"object-assign":4}],156:[function(require,module,exports){
 /** @jsx React.DOM */
 var CarStore = require('./components/CarApp');
 var React = require('react');
@@ -19760,15 +19780,15 @@ React.render(React.createElement(CarStore, null),document.getElementById('car-ap
 
 
 
-},{"./components/CarApp":151,"react":150}],156:[function(require,module,exports){
+},{"./components/CarApp":152,"react":150}],157:[function(require,module,exports){
 var AppDispatcher = require('../dispatchers/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 
 var _cars = [];
 
-var CHANGE_EVENT = 'Carstore.changed';
-var ADD_EVENT = 'Carstore.add';
+var CHANGE_EVENT = 'CarStore.changed';
+var ADD_EVENT = 'CarStore.add';
 var REMOVE_EVENT = 'Carstore.remove';
 
 var CarStore = assign({}, EventEmitter.prototype, {
@@ -19785,9 +19805,8 @@ var CarStore = assign({}, EventEmitter.prototype, {
     return _cars;
   },
   removeCar:function(item){
-    console.log('the item is:',item);
     _cars.map(function(array_item,index){
-      console.log('the array item is',array_item);
+
       if(item.props.item.name === array_item.name) _cars.splice(index,1);
       CarStore.emitChange();
     });
@@ -19803,18 +19822,15 @@ var CarStore = assign({}, EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT,callback);
   },
   dispatcherIndex: AppDispatcher.register(function (payload) {
-
+    console.log("dispatcherIndex:AppDispatcher.register was called with payload",payload);
     var action = payload.action;
-    var text;
-    console.log(payload);
-    console.log("our dispatcherIndex was called");
     switch (action.actionType) {
       case ADD_EVENT:
-          this.addCar(action.car);
-          this.emitChange();
+          console.log("we got into our ADD_EVENT");
+          CarStore.addCar(action.item);
+          CarStore.emitChange();
         break;
       case REMOVE_EVENT:
-        console.log("Our remove event was called");
         break;
 
       // add more cases for other actionTypes, like TODO_UPDATE, etc.
@@ -19834,4 +19850,4 @@ var CarStore = assign({}, EventEmitter.prototype, {
 
 module.exports = CarStore;
 
-},{"../dispatchers/AppDispatcher":153,"events":2,"object-assign":4}]},{},[155])
+},{"../dispatchers/AppDispatcher":154,"events":2,"object-assign":4}]},{},[156])

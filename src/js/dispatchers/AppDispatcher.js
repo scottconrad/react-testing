@@ -12,13 +12,12 @@ var AppDispatcher = assign({}, Dispatcher.prototype, {
    * @param  {object} action The data coming from the view.
    */
   handleViewAction: function (action) {
-    alert("we had an action" + action);
-
     this.dispatch({
       source: 'VIEW_ACTION',
       action: action
     });
   }
 });
-
+//
+//
 module.exports = AppDispatcher; //
